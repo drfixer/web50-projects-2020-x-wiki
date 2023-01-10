@@ -10,6 +10,8 @@ def index(request):
 
 def entry(request, title):
     return render(request, "encyclopedia/entry.html", {
+
+        # added function to turn md into html
         "entry": util.get_entry_html(title),
         "title": title
     })
@@ -24,8 +26,13 @@ def search(request):
 def new_page(request):
     if request.method == 'POST':
         title = request.POST['title']
+
+        # error if entry alrady exists
         if not util.get_entry(title) == None:
-            raise Exception("Title already exists")
+            message = "Entry already exists"
+            return render(request, "encyclopedia/error.html", {
+                "message": message
+            })
         content = request.POST['content']
         f = open(f'entries/{title}.md', 'w')
         f.write(content)
@@ -49,10 +56,5 @@ def edit(request, title):
 def random(request):
     random_number = randrange(0,len(util.list_entries()))
     entry = util.list_entries()[random_number]
-    #entry = md_to_html(entry)
     return redirect(f'/wiki/{entry}')
-
-def md_to_html(md_file):
-    f = open(md_file)
-    html_version = ''
 
